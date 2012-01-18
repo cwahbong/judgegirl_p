@@ -1,0 +1,13 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<h1>Announcement</h1>
+{% for announce in announce_list %}
+<table class="announcement">
+  <thead><tr><td>{{ announce.title }}</td></tr></thead>
+  <tbody><tr><td>{{ announce.content }}</td></tr></tbody>
+  <tfoot><tr><td>Announced at {{ announce.time}}</td></tr></tfoot>
+</table>
+{% endfor %}
+{% endblock %}
+

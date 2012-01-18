@@ -1,0 +1,26 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<h1>{{ problem.title }}</h1>
+<h2>Constraints</h2>
+<p>Time limit: {{ problem.time_limit }} seconds</p>
+<p>Memory limit: {{ problem.memory_limit }} MB</p>
+<p>Output limit: {{ problem.output_limit }} MB</p>
+<h2>Description</h2>
+<div>
+{{ problem.main_description }}
+</div>
+<h2>Input</h2>
+<div>
+{{ problem.input_description }}
+</div>
+<h2>Output</h2>
+<div>
+{{ problem.output_description }}
+</div>
+<table>
+  <thead><tr><td>Sample input</td><td>Sample output</td></tr></thead>
+  <tbody><tr><td>{{ problem.sample_input }}</td><td>{{ problem.sample_output }}</td></tr></tbody>
+</table>
+{% endblock %}
+

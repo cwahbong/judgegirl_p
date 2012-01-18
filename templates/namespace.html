@@ -1,0 +1,15 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<table>
+  <thead>
+    <tr><td>id</td><td>Title</td></tr>
+  </thead>
+  <tbody>
+    {% for problem in problem_list%}
+    <tr><td>{{ problem.id }}</td><td>{{ problem.title }}</td><td><a href="/problem/{{problem.id}}">View</a></td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
