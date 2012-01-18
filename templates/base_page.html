@@ -3,12 +3,12 @@
 {% block header %}
 <table>
   <tr>
-    <td><a href="{% url django.contrib.auth.views.login %}">Home</a></td>
-    <td><a href="{% url p.judge.views.announcement %}">Announce</a></td>
-    <td><a href="{% url p.judge.views.namespace %}">Problem</a></td>
-    <td><a href="{% url p.judge.views.link %}">Link</a></td>
+    <td><a href="{% url index %}">Home</a></td>
+    <td><a href="{% url announcement %}">Announce</a></td>
+    <td><a href="{% url namespace %}">Problem</a></td>
+    <td><a href="{% url link %}">Link</a></td>
     {% if user.is_staff %}<td><a href="{% url admin:index %}">Admin</a></td>{% endif %}
-    {% if user.is_authenticated %}<td><a href="{% url django.contrib.auth.views.logout %}">Logout</a></td>{% endif %}
+    {% if user.is_authenticated %}<td><a href="{% url logout %}">Logout</a></td>{% endif %}
   </tr>
 </table>
 {% endblock %}

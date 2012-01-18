@@ -28,10 +28,14 @@ def namespace(request, sid=''):
   """
   try:
     dic = {
-      'user': request.user,
-      #'namespace_list': Namespace.objects.filter(parent__exact=namespace),
-      'problem_list': Problem.objects.all() 
+      'user': request.user
     }
+    namespace_parent = None
+    if sid!='':
+      namespace_parent = Namespace.objects.get(id=sid)
+    dic['namespace_parent'] = namespace_parent
+    dic['namespace_list'] = Namespace.objects.filter(parent=namespace_parent)
+    dic['problem_list'] = Problem.objects.filter(namespace=namespace_parent)
     return render(request, 'namespace.html', dictionary=dic)
   except Namespace.DoesNotExist:
     raise Http404
