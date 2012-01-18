@@ -1,0 +1,29 @@
+h1
+{
+  text-align: center
+}
+
+.announcement
+{
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%
+}
+
+.announcement thead
+{
+  
+}
+
+.announcement tfoot
+{
+  text-align: right
+}
+
+.link
+{
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%
+}
+
