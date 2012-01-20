@@ -1,6 +1,8 @@
-{% extends "base_page.html" %}
+{% extends "base_namespace_problem.html" %}
 
 {% block content %}
+{{ block.super }}
+</table>
 <h1>{{ problem.title }}</h1>
 <h2>Constraints</h2>
 <p>Time limit: {{ problem.time_limit }} seconds</p>

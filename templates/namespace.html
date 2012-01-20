@@ -1,27 +1,23 @@
-{% extends "base_page.html" %}
+{% extends "base_namespace_problem.html" %}
 
 {% block content %}
-Namespace <a href="{% url namespace %}">(root)</a>{% for n in namespace_parent_list %}::<a href="{% url namespace sid=n.id %}">{{ n.name }}</a>{% endfor %}
-<table>
-  <thead>
-    <tr><td>id</td><td>Title</td></tr>
-  </thead>
-  <tbody>
-    {% for namespace in namespace_list %}
-    <tr>
-      <td>{{ namespace.id }}</td>
-      <td>{{ namespace.name }}</td>
-      <td><a href="{% url namespace sid=namespace.id %}">View namespace</a></td>
-    </tr>
-    {% endfor %}
-    {% for problem in problem_list%}
-    <tr>
-      <td>{{ problem.id }}</td>
-      <td>{{ problem.title }}</td>
-      <td><a href="{% url problem pid=problem.id %}">View problem</a></td>
-    </tr>
-    {% endfor %}
-  </tbody>
+{{ block.super }}
+<table class="list">
+{% if not namespace_list and not problem_list %}
+<tr><td>This namespace is empty.</td></tr>
+{% endif %}
+{% if namespace_list %}
+  <tr><td>Namespaces</td></tr>
+  {% for namespace in namespace_list %}
+  <tr><td><a href="{% url namespace sid=namespace.id %}">{{ namespace.name }}</a></td></tr>
+  {% endfor %}
+{% endif %}
+{% if problem_list %}
+  <tr><td>Problems</td></tr>
+  {% for problem in problem_list %}
+  <tr><td><a href="{% url problem pid=problem.id %}">{{ problem.title }}</a></td></tr>
+  {% endfor %}
+{% endif %}
 </table>
 {% endblock %}
 

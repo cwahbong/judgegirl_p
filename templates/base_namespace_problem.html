@@ -1,0 +1,16 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<table class="menu">
+  <tr>
+    <td class="leftmenu">
+      Current at namespace <a href="{% url namespace %}">root</a>{% for n in namespace_parent_list %}::<a href="{% url namespace sid=n.id %}">{{ n.name }}</a>{% endfor %}
+    </td>
+    <td class="rightmenu">
+      {% if problem.is_submittable %}<a href="{% url submit pid=problem.id %}">Submit<a>{% endif %}
+      {% if problem.is_test_uploadable %}<a href="{% url upload_test pid=problem.id %}">Upload test data<a>{% endif %}
+    </td>
+  </tr>
+</table>
+{% endblock %}
+

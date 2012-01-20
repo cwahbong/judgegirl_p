@@ -1,0 +1,46 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+
+<script type="text/javascript">
+function choose(radio_value)
+{
+  var radio = document.getElementsByName("submit_method");
+  for(i in radio)
+  {
+    if(radio[i].value==radio_value)
+    {
+      radio[i].checked = true;
+    }
+  }
+}
+</script>
+
+<h1>Submit</h1>
+<form action="{% url submit %}" method="post">{% csrf_token %}
+  <fieldset><legend>Problem information</legend>
+    <div>Problem: {{ problem.title }}</div>
+    <div>Time limit: {{ problem.time_limit }} second</div>
+    <div>Memory limit: {{ problem.memory_limit }} MB</div>
+    <div>Output limit: {{ problem.output_limit }} MB</div>
+  </fieldset>
+  <fieldset><legend>Language (with compile command)</legend>
+    
+  </fieldset>
+  <fieldset><legend>Source code</legend>
+    <div>
+    <input type="radio" name="submit_method" value="textarea">
+    Paste code here:<br>
+    <textarea name="code" rows="10" cols="72" onkeypress="choose('textarea')"></textarea>
+    </div>
+    <div>
+    <input type="radio" name="submit_method" value="file">
+    Upload source file:
+    <input type="file" onchange="choose('file')">
+    </div>
+  </fieldset>
+  <input type="submit" value="Submit">
+  <input type="hidden" name="pid" value="{{problem.id}}">
+</form>
+{% endblock %}
+

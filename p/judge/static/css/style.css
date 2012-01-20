@@ -20,11 +20,11 @@ h1
   text-align: right
 }
 
-.link
+.list
 {
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto
 }
 
 table.sample
@@ -32,3 +32,17 @@ table.sample
   width: 100%
 }
 
+.menu
+{
+  width: 100%
+}
+
+.leftmenu
+{
+  text-align: left
+}
+
+.rightmenu
+{
+  text-align: right
+}
