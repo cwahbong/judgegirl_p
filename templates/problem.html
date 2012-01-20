@@ -18,9 +18,9 @@
 <div>
 {{ problem.output_description }}
 </div>
-<table>
-  <thead><tr><td>Sample input</td><td>Sample output</td></tr></thead>
-  <tbody><tr><td>{{ problem.sample_input }}</td><td>{{ problem.sample_output }}</td></tr></tbody>
+<table class="sample">
+  <thead><tr><td><h2>Sample Input</h2></td><td><h2>Sample Output</h2></td></tr></thead>
+  <tbody><tr><td><code>{{ problem.sample_input }}</code></td><td><code>{{ problem.sample_output }}</code></td></tr></tbody>
 </table>
 {% endblock %}
 

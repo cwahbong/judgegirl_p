@@ -1,13 +1,13 @@
 {% extends "base_page.html" %}
 
 {% block content %}
-Namespace ::{% if namespace_parent %}{{ namespace_parent }}{% endif %}
+Namespace <a href="{% url namespace %}">(root)</a>{% for n in namespace_parent_list %}::<a href="{% url namespace sid=n.id %}">{{ n.name }}</a>{% endfor %}
 <table>
   <thead>
     <tr><td>id</td><td>Title</td></tr>
   </thead>
   <tbody>
-    {% for namespace in namespace_list%}
+    {% for namespace in namespace_list %}
     <tr>
       <td>{{ namespace.id }}</td>
       <td>{{ namespace.name }}</td>

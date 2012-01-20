@@ -81,6 +81,7 @@ class Submission(models.Model):
   user = models.ForeignKey(User)
   code = models.TextField()
   submit_time = models.DateTimeField()
+  request_time = models.DateTimeField()
   result = models.CharField(max_length=64)
   message = models.CharField(max_length=1024)
 

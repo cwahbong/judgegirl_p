@@ -28,12 +28,16 @@ def namespace(request, sid=''):
   """
   try:
     dic = {
-      'user': request.user
+      'user': request.user,
+      'namespace_parent_list': []
     }
     namespace_parent = None
     if sid!='':
       namespace_parent = Namespace.objects.get(id=sid)
-    dic['namespace_parent'] = namespace_parent
+      dic['namespace_parent_list'].append(namespace_parent)
+      while dic['namespace_parent_list'][-1].parent:
+        dic['namespace_parent_list'].append(dic['namespace_parent_list'][-1].parent)
+      dic['namespace_parent_list'].reverse()
     dic['namespace_list'] = Namespace.objects.filter(parent=namespace_parent)
     dic['problem_list'] = Problem.objects.filter(namespace=namespace_parent)
     return render(request, 'namespace.html', dictionary=dic)
@@ -53,8 +57,16 @@ def problem(request, pid):
     raise Http404
 
 @login_required
-def submit(request):
+def submit(request, pid):
   pass
+#  try:
+#    dic = {
+#      'user': request.user
+#      'problem': Problem.objects.get(id__exact=pid)
+#    }
+#    return render(request, 'submit.html', dictionary=dic)
+#  except Problem.DoesNoeExist:
+#    raise Http404
 
 @login_required
 def upload_test(request):
