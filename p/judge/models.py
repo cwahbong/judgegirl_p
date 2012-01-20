@@ -13,11 +13,11 @@ class Announcement(models.Model):
   announce_time = models.DateTimeField(editable=False)
   
   def clean(self, *args, **kwargs):
-    self.time = datetime.now()
+    self.announce_time = datetime.now()
     super(Announcement, self).clean(*args, **kwargs)
 
   def __unicode__(self):
-    return self.title + ' (' + str(self.time) + ')'
+    return self.title + ' (' + str(self.announce_time) + ')'
 
 
 class Link(models.Model):
