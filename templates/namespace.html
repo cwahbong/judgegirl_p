@@ -2,22 +2,26 @@
 
 {% block content %}
 {{ block.super }}
-<table class="list">
+<ul>
 {% if not namespace_list and not problem_list %}
-<tr><td>This namespace is empty.</td></tr>
+  <li>This namespace is empty.
 {% endif %}
 {% if namespace_list %}
-  <tr><td>Namespaces</td></tr>
+  <li>Namespaces
+  <ul>
   {% for namespace in namespace_list %}
-  <tr><td><a href="{% url namespace sid=namespace.id %}">{{ namespace.name }}</a></td></tr>
+    <li><a href="{% url namespace sid=namespace.id %}">{{ namespace.name }}</a>
   {% endfor %}
+  </ul>
 {% endif %}
 {% if problem_list %}
-  <tr><td>Problems</td></tr>
+  <li>Problems
+  <ul>
   {% for problem in problem_list %}
-  <tr><td><a href="{% url problem pid=problem.id %}">{{ problem.title }}</a></td></tr>
-  {% endfor %}
+    <li><a href="{% url problem pid=problem.id %}">{{ problem.title }}</a>
+  {%endfor %}
+  </ul>
 {% endif %}
-</table>
+</ul>
 {% endblock %}
 

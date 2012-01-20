@@ -3,22 +3,22 @@
 {% block content %}
 {{ block.super }}
 </table>
-<h1>{{ problem.title }}</h1>
+<h1>{{ problem.title|title }}</h1>
 <h2>Constraints</h2>
 <p>Time limit: {{ problem.time_limit }} seconds</p>
 <p>Memory limit: {{ problem.memory_limit }} MB</p>
 <p>Output limit: {{ problem.output_limit }} MB</p>
 <h2>Description</h2>
 <div>
-{{ problem.main_description }}
+{{ problem.main_description|linebreaks }}
 </div>
 <h2>Input</h2>
 <div>
-{{ problem.input_description }}
+{{ problem.input_description|linebreaks }}
 </div>
 <h2>Output</h2>
 <div>
-{{ problem.output_description }}
+{{ problem.output_description|linebreaks }}
 </div>
 <table class="sample">
   <thead><tr><td><h2>Sample Input</h2></td><td><h2>Sample Output</h2></td></tr></thead>
