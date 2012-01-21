@@ -1,21 +1,6 @@
 {% extends "base_page.html" %}
 
 {% block content %}
-
-<script type="text/javascript">
-function choose(radio_value)
-{
-  var radio = document.getElementsByName("submit_method");
-  for(i in radio)
-  {
-    if(radio[i].value==radio_value)
-    {
-      radio[i].checked = true;
-    }
-  }
-}
-</script>
-
 <h1>Submit</h1>
 <form action="{% url submit %}" method="post">{% csrf_token %}
   <fieldset><legend>Problem information</legend>
@@ -29,14 +14,14 @@ function choose(radio_value)
   </fieldset>
   <fieldset><legend>Source code</legend>
     <div>
-    <input type="radio" name="submit_method" value="textarea">
+    <input id="submit_method_textarea" type="radio" name="submit_method" value="textarea">
     Paste code here:<br>
-    <textarea name="code" rows="10" cols="72" onkeypress="choose('textarea')"></textarea>
+    <textarea name="code" rows="10" cols="72" onkeypress="document.getElementById('submit_method_textarea').checked=true"></textarea>
     </div>
     <div>
-    <input type="radio" name="submit_method" value="file">
+    <input id="submit_method_file" type="radio" name="submit_method" value="file">
     Upload source file:
-    <input type="file" onchange="choose('file')">
+    <input type="file" onchange="document.getElementById('submit_method_file').checked=true">
     </div>
   </fieldset>
   <input type="submit" value="Submit">
