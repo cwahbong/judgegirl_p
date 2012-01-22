@@ -21,62 +21,62 @@ def link(request):
 def announcement(request):
   dic = {
     'user': request.user,
-    'announce_list': Announcement.objects.all().order_by('-announce_time')
+    'announce_list': Announcement.objects.all()
   }
   return render(request, 'announcement.html', dictionary=dic)
 
 
 @login_required
-def namespace(request, sid=''):
-  if sid=='':
-    namespace_parent = None
-  else:
-    namespace_parent = get_object_or_404(Namespace, id=sid)
+def namespace(request, sid=None):
+  namespace_parent = get_namespace(sid)
   dic = {
     'user': request.user,
     'namespace_parent_list': get_parent_list(namespace_parent),
-    'namespace_list': Namespace.objects.filter(parent=namespace_parent),
-    'problem_list': Problem.objects.filter(namespace=namespace_parent)
+    'namespace_list': permitted_namespace_list(Namespace.objects.filter(parent=namespace_parent)),
+    'problem_list': permitted_problem_list(Problem.objects.filter(namespace=namespace_parent))
   }
   return render(request, 'namespace.html', dictionary=dic)
 
 
 @login_required
-def problem(request, pid, message=''):
-  problem = get_object_or_404(Problem, id=pid)
+def problem(request, pid, message=None):
+  problem = get_problem(pid)
   dic = {
     'user': request.user,
     'problem': problem,
-    'namespace_parent_list': get_parent_list(problem.namespace)
+    'namespace_parent_list': get_parent_list(problem.namespace),
+    'message': message
   }
   return render(request, 'problem.html', dictionary=dic)
 
 
 @login_required
-def submit(request, pid=''):
-  if request.method=='POST':
+def submit(request, pid=None):
+  if request.method=='POST' and pid is None:
     # TODO insert submission into the database
     return redirect('problem', pid=request.POST['pid'])
-  else:
-    if pid=='':
-      raise Http404
+  elif request.method=='GET' and pid:
     dic = {
       'user': request.user,
-      'problem': get_object_or_404(Problem, id=pid)
+      'problem': get_problem(pid)
     }
     return render(request, 'submit.html', dictionary=dic)
+  else:
+    raise Http404
 
 
 @login_required
-def upload_test(request, pid=''):
-  if request.method=='POST':
+def upload_test(request, pid=None):
+  if request.method=='POST' and pid is None:
+    # TODO insert testdata into the database
     return redirect('problem', pid=request.POST['pid'])
-  else:
-    if pid=='':
-      raise Http404
+  elif request.method=='GET' and pid is not None:
     dic = {
-      'user': request.user
+      'user': request.user,
+      'problem': get_problem(pid)
     }
     return render(request, 'test_upload.html', dictionary=dic)
+  else:
+    raise Http404
 
 

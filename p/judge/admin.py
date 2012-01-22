@@ -1,9 +1,18 @@
 from django.contrib import admin
-from p.judge.models import Announcement, Namespace, Problem, Link
+from p.judge.models import Announcement, Namespace, Link, Problem, Status
 
 
-admin.site.register(Announcement)
+class StatusAdmin(admin.ModelAdmin):
+  pass
+
+
+class AnnouncementAdmin(admin.ModelAdmin):
+  list_display = ['title', 'announce_time']
+admin.site.register(Announcement, AnnouncementAdmin)
+
+
 admin.site.register(Namespace)
-admin.site.register(Problem)
 admin.site.register(Link)
+admin.site.register(Problem)
+admin.site.register(Status)
 

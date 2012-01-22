@@ -1,5 +1,5 @@
 from django.db import models, IntegrityError
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from datetime import datetime
@@ -11,7 +11,10 @@ class Announcement(models.Model):
   title = models.CharField(max_length=256)
   content = models.TextField()
   announce_time = models.DateTimeField(editable=False)
-  
+
+  class Meta:
+    ordering = ['-announce_time']
+
   def clean(self, *args, **kwargs):
     self.announce_time = datetime.now()
     super(Announcement, self).clean(*args, **kwargs)
@@ -25,6 +28,10 @@ class Link(models.Model):
   """
   name = models.CharField(max_length=256)
   url = models.URLField()
+  description = models.CharField(max_length=1024, blank=True)
+
+  class Meta:
+    ordering = ['name']
 
   def __unicode__(self):
     return self.name
@@ -35,10 +42,6 @@ class Namespace(models.Model):
       multiple column primary key, this model have some issue
       to solve
   """
-
-  class Meta:
-    unique_together = ('parent', 'name')
-
   parent = models.ForeignKey('self', blank=True, null=True, default='', on_delete=models.CASCADE)
   name = models.CharField(
     max_length=64,
@@ -47,13 +50,17 @@ class Namespace(models.Model):
     ]
   )
 
+  class Meta:
+    unique_together = ('parent', 'name')
+    ordering = ['name']
+
   def clean(self, *args, **kwargs):
     if self.parent==self:
       raise ValidationError('Parent cannot be self.')
     if self.parent==None and Namespace.objects.filter(parent=None).filter(name=self.name):
       raise ValidationError('Namespace with this Parent and Name already exists.')
     super(Namespace, self).clean(*args, **kwargs)
-    
+
   def __unicode__(self):
     if self.parent and self.parent.name!='':
       return self.parent.__unicode__() + '::' + self.name
@@ -62,7 +69,7 @@ class Namespace(models.Model):
 
 
 class Problem(models.Model):
-  namespace = models.ForeignKey(Namespace, blank=True, null=True, on_delete=models.PROTECT)
+  namespace = models.ForeignKey('Namespace', blank=True, null=True, on_delete=models.PROTECT)
   time_limit = models.IntegerField()          # Unit: second
   memory_limit = models.IntegerField()        # Unit: MB
   output_limit = models.IntegerField()        # Unit: MB
@@ -72,13 +79,63 @@ class Problem(models.Model):
   output_description = models.TextField()
   sample_input = models.TextField()
   sample_output = models.TextField()
+  # input_file = models.TextField()
+  # output_file = models.TextField()
   is_submittable = models.BooleanField(default=True)
   is_test_uploadable = models.BooleanField()
 
+  # def __unicode__(self):
+  # pass
+
+
+class Status(models.Model):
+  object_type = models.CharField(
+    max_length = 1,
+    choices=(
+      ('U', 'user'),
+      ('G', 'group'),
+      ('A', 'all')
+    )
+  )
+  user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+  group = models.ForeignKey(Group, blank=True, null=True, on_delete=models.CASCADE)
+  space_type = models.CharField(
+    max_length = 1,
+    choices=(
+      ('N', 'namespace'),
+      ('P', 'problem')
+    )
+  )
+  namespace = models.ForeignKey('Namespace', blank=True, null=True, on_delete=models.CASCADE)
+  problem = models.ForeignKey('Problem', blank=True, null=True, on_delete=models.CASCADE)
+  status_type = models.CharField(
+    max_length = 8,
+    choices=(
+      ('PERMIT', 'permit'),
+      ('SILENCE', 'silence')
+    )
+  )
+  time_start = models.DateTimeField(blank=True, null=True)
+  time_end = models.DateTimeField(blank=True, null=True)
+  description = models.TextField(blank=True, null=True)
+  
+  class Meta:
+    verbose_name_plural = 'Statuses' 
+
+  def clean(self, *args, **kwargs):
+    # check group_type
+    #   check user/group/all if it is valid
+    # check status_type if it is valid
+    super(Status, self).clean(*args, **kwargs)
+
+  # def __unicode__(self):
+  # pass
+
 
 class Submission(models.Model):
-  problem = models.ForeignKey(Problem, null=True, on_delete=models.SET_NULL)
+  problem = models.ForeignKey('Problem', null=True, on_delete=models.SET_NULL)
   user = models.ForeignKey(User)
+  priority = models.IntegerField()
   code = models.TextField()
   submit_time = models.DateTimeField()
   request_time = models.DateTimeField()
@@ -88,9 +145,10 @@ class Submission(models.Model):
   def __unicode__(self):
     return "Problem: " + self.problem + " User: " + self.user + " Time: " + str(self.submit_time)
 
+
 class TestData(models.Model):
-  problem = models.ForeignKey(Problem, null=True)
-  # include input and output
-  pass
+  problem = models.ForeignKey('Problem', null=True)
+  # input = models.TextField()
+  # output = models.TextField()
 
 

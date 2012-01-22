@@ -2,8 +2,10 @@
 
 {% block content %}
 <h1>Link</h1>
+<ul>
 {% for link in link_list %}
-<div class="list"><a href="{{link.url}}">{{ link.name }}</a></div>
+  <li><a href="{{ link.url }}" title="{{ link.description }}">{{ link.name }}</a>
 {% endfor %}
+</ul>
 {% endblock %}
 
