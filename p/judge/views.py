@@ -28,19 +28,19 @@ def announcement(request):
 
 @login_required
 def namespace(request, sid=None):
-  namespace_parent = get_namespace(sid)
+  namespace_parent = get_namespace(request.user, sid)
   dic = {
     'user': request.user,
     'namespace_parent_list': get_parent_list(namespace_parent),
-    'namespace_list': permitted_namespace_list(Namespace.objects.filter(parent=namespace_parent)),
-    'problem_list': permitted_problem_list(Problem.objects.filter(namespace=namespace_parent))
+    'namespace_list': permitted_namespace_list(request.user, Namespace.objects.filter(parent=namespace_parent)),
+    'problem_list': permitted_problem_list(request.user, Problem.objects.filter(namespace=namespace_parent))
   }
   return render(request, 'namespace.html', dictionary=dic)
 
 
 @login_required
 def problem(request, pid, message=None):
-  problem = get_problem(pid)
+  problem = get_problem(request.user, pid)
   dic = {
     'user': request.user,
     'problem': problem,
@@ -58,7 +58,7 @@ def submit(request, pid=None):
   elif request.method=='GET' and pid:
     dic = {
       'user': request.user,
-      'problem': get_problem(pid)
+      'problem': get_problem(request.user, pid)
     }
     return render(request, 'submit.html', dictionary=dic)
   else:
@@ -73,7 +73,7 @@ def upload_test(request, pid=None):
   elif request.method=='GET' and pid is not None:
     dic = {
       'user': request.user,
-      'problem': get_problem(pid)
+      'problem': get_problem(request.user, pid)
     }
     return render(request, 'test_upload.html', dictionary=dic)
   else:

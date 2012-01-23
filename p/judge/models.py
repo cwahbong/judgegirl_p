@@ -84,30 +84,15 @@ class Problem(models.Model):
   is_submittable = models.BooleanField(default=True)
   is_test_uploadable = models.BooleanField()
 
-  # def __unicode__(self):
-  # pass
+  def __unicode__(self):
+    return self.namespace.__unicode__() + '::' + self.title 
 
 
 class Status(models.Model):
-  object_type = models.CharField(
-    max_length = 1,
-    choices=(
-      ('U', 'user'),
-      ('G', 'group'),
-      ('A', 'all')
-    )
-  )
-  user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
-  group = models.ForeignKey(Group, blank=True, null=True, on_delete=models.CASCADE)
-  space_type = models.CharField(
-    max_length = 1,
-    choices=(
-      ('N', 'namespace'),
-      ('P', 'problem')
-    )
-  )
-  namespace = models.ForeignKey('Namespace', blank=True, null=True, on_delete=models.CASCADE)
-  problem = models.ForeignKey('Problem', blank=True, null=True, on_delete=models.CASCADE)
+  users = models.ManyToManyField(User, blank=True, null=True, default=None)
+  groups = models.ManyToManyField(Group, blank=True, null=True, default=None)
+  namespaces = models.ManyToManyField('Namespace', blank=True, null=True, default=None)
+  problems = models.ManyToManyField('Problem', blank=True, null=True, default=None)
   status_type = models.CharField(
     max_length = 8,
     choices=(
@@ -115,21 +100,15 @@ class Status(models.Model):
       ('SILENCE', 'silence')
     )
   )
-  time_start = models.DateTimeField(blank=True, null=True)
-  time_end = models.DateTimeField(blank=True, null=True)
-  description = models.TextField(blank=True, null=True)
+  start_time = models.DateTimeField(blank=True, null=True, default=None)
+  end_time = models.DateTimeField(blank=True, null=True, default=None)
+  description = models.TextField(blank=True, null=True, default=None)
   
   class Meta:
-    verbose_name_plural = 'Statuses' 
+    verbose_name_plural = 'Statuses'
 
-  def clean(self, *args, **kwargs):
-    # check group_type
-    #   check user/group/all if it is valid
-    # check status_type if it is valid
-    super(Status, self).clean(*args, **kwargs)
-
-  # def __unicode__(self):
-  # pass
+  def __unicode__(self):
+    return self.description
 
 
 class Submission(models.Model):
