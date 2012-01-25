@@ -106,6 +106,7 @@ class Problem(models.Model):
 class Status(models.Model):
   """
   """
+  name = models.CharField(max_length=256)
   users = models.ManyToManyField(User, blank=True, null=True, default=None)
   groups = models.ManyToManyField(Group, blank=True, null=True, default=None)
   namespaces = models.ManyToManyField('Namespace', blank=True, null=True, default=None)
@@ -113,6 +114,7 @@ class Status(models.Model):
   status_type = models.CharField(
     max_length = 8,
     choices=(
+      ('TAG', 'tag'),
       ('PERMIT', 'permit'),
       ('SILENCE', 'silence')
     )

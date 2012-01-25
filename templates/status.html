@@ -1,0 +1,11 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<h1>Status</h1>
+<ul>
+{% for status in status_list %}
+  <li><a href="#" title="{{ status.description }}">{{ status.name }}</a>
+{% endfor %}
+</ul>
+{% endblock %}
+

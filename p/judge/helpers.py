@@ -15,23 +15,21 @@ def get_parent_list(namespace):
     result.reverse()
   return result
 
-def permit_time_check(user, queryset):
-  queryset = queryset.filter(status_type='PERMIT')
-  queryset = queryset.filter(Q(users=user)|Q(groups=user.groups.all()))
-  queryset = queryset.filter(Q(start_time=None)|Q(start_time__lte=datetime.now()))
-  queryset = queryset.filter(Q(end_time=None)|Q(end_time__gte=datetime.now()))
-  return queryset
+def user_time_filter(user, queryset):
+  return queryset.filter(Q(users=user)|Q(groups=user.groups.all())
+  ).filter(Q(start_time=None)|Q(start_time__lte=datetime.now())
+  ).filter(Q(end_time=None)|Q(end_time__gte=datetime.now()))
 
 def namespace_permitted(user, namespace):
   while namespace:
-    namespace_perm = permit_time_check(user, namespace.status_set)
+    namespace_perm = user_time_filter(user, namespace.status_set.filter(status_type='PERMIT'))
     if namespace_perm:
       return True
     namespace = namespace.parent
   return False
 
 def problem_permitted(user, problem):
-  if permit_time_check(user, problem.status_set) or namespace_permitted(user, problem.namespace):
+  if user_time_filter(user, problem.status_set.filter(status_type='PERMIT')) or namespace_permitted(user, problem.namespace):
     return True
   else:
     return False

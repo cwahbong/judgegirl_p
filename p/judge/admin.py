@@ -7,7 +7,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
   list_display = ['title', 'announce_time']
 
 class StatusAdmin(admin.ModelAdmin):
-  list_display = ['description', 'start_time', 'end_time']
+  list_display = ['name', 'description', 'start_time', 'end_time']
 
 class SubmissionAdmin(admin.ModelAdmin):
   list_display = ['id', 'problem', 'user', 'priority', 'submit_time', 'status', 'result']

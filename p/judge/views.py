@@ -11,7 +11,6 @@ from p.judge.models import *
 
 def link(request):
   dic = {
-    'user': request.user,
     'link_list': Link.objects.all()
   }
   return render(request, 'link.html', dictionary=dic)
@@ -20,17 +19,21 @@ def link(request):
 @login_required
 def announcement(request):
   dic = {
-    'user': request.user,
     'announce_list': Announcement.objects.all()
   }
   return render(request, 'announcement.html', dictionary=dic)
 
+@login_required
+def status(request):
+  dic = {
+    'status_list': user_time_filter(request.user, Status.objects)
+  }
+  return render(request, 'status.html', dictionary=dic)
 
 @login_required
 def namespace(request, sid=None):
   namespace_parent = get_namespace(request.user, sid)
   dic = {
-    'user': request.user,
     'namespace_parent_list': get_parent_list(namespace_parent),
     'namespace_list': permitted_namespace_list(request.user, Namespace.objects.filter(parent=namespace_parent)),
     'problem_list': permitted_problem_list(request.user, Problem.objects.filter(namespace=namespace_parent))
@@ -42,7 +45,6 @@ def namespace(request, sid=None):
 def problem(request, pid, message=None):
   problem = get_problem(request.user, pid)
   dic = {
-    'user': request.user,
     'problem': problem,
     'namespace_parent_list': get_parent_list(problem.namespace),
     'message': message
@@ -57,7 +59,6 @@ def submit(request, pid=None):
     return redirect('problem', pid=request.POST['pid'])
   elif request.method=='GET' and pid:
     dic = {
-      'user': request.user,
       'problem': get_problem(request.user, pid)
     }
     return render(request, 'submit.html', dictionary=dic)
@@ -72,7 +73,6 @@ def upload_test(request, pid=None):
     return redirect('problem', pid=request.POST['pid'])
   elif request.method=='GET' and pid is not None:
     dic = {
-      'user': request.user,
       'problem': get_problem(request.user, pid)
     }
     return render(request, 'test_upload.html', dictionary=dic)
