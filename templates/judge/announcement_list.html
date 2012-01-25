@@ -1,0 +1,13 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<h1>Announcement</h1>
+{% for announcement in announcement_list %}
+<div class="announcement">
+  <div class="announce_title">{{ announcement.title }}</div>
+  <div class="announce_content">{{ announcement.content|linebreaks }}</div>
+  <div class="announce_time">Announced at {{ announcement.announce_time}}</div>
+</div>
+{% endfor %}
+{% endblock %}
+

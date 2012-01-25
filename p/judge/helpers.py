@@ -6,19 +6,12 @@ from datetime import datetime
 
 from p.judge.models import Namespace, Problem, Status
 
-def get_parent_list(namespace):
-  result = []
-  if namespace:
-    result.append(namespace)
-    while result[-1].parent:
-      result.append(result[-1].parent)
-    result.reverse()
-  return result
 
 def user_time_filter(user, queryset):
   return queryset.filter(Q(users=user)|Q(groups=user.groups.all())
   ).filter(Q(start_time=None)|Q(start_time__lte=datetime.now())
   ).filter(Q(end_time=None)|Q(end_time__gte=datetime.now()))
+
 
 def namespace_permitted(user, namespace):
   while namespace:
@@ -26,6 +19,14 @@ def namespace_permitted(user, namespace):
     if namespace_perm:
       return True
     namespace = namespace.parent
+  return False
+
+def namespace_visible(user, namespace):
+  if namespace_permitted(user, namespace):
+    return True
+  for namespace_child in namespace.namespace_set.all():
+    if namespace_visible(user, namespace_child):
+      return True
   return False
 
 def problem_permitted(user, problem):
@@ -45,7 +46,7 @@ def get_namespace(user, sid):
   if sid is None:
     return None
   namespace = get_object_or_404(Namespace, id=sid)
-  if namespace_permitted(user, namespace):
+  if namespace_visible(user, namespace):
     return namespace
   else:
     raise Http404
@@ -57,10 +58,10 @@ def permitted_problem_list(user, problem_list):
       result.append(problem)
   return result
 
-def permitted_namespace_list(user, namespace_list):
-  result = []
+def visible_namespace_list(user, namespace_list):
+  result=[]
   for namespace in namespace_list:
-    if namespace_permitted(user, namespace):
+    if namespace_visible(user, namespace):
       result.append(namespace)
   return result
 

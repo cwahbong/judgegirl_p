@@ -67,6 +67,15 @@ class Namespace(models.Model):
       raise ValidationError('The name of the Namespace with the same Parent already exists.')
     super(Namespace, self).clean(*args, **kwargs)
 
+  def parent_list(self):
+    p = self
+    result = []
+    while p:
+      result.append(p)
+      p = p.parent
+    result.reverse()
+    return result
+
   def __unicode__(self):
     if self.parent and self.parent.name!='':
       return unicode(self.parent) + '::' + self.name
@@ -142,9 +151,10 @@ class Submission(models.Model):
       (0, 'Normal'),
       (-1, 'Low'),
       (-2, 'Lowest'),
-    )
+    ),
+    default=0
   )
-  code = models.TextField()
+  code = models.TextField(blank=True)
   submit_time = models.DateTimeField(editable=False)
   request_time = models.DateTimeField(editable=False)
   status = models.CharField(

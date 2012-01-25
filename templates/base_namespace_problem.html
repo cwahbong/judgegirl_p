@@ -4,7 +4,7 @@
 <table class="menu">
   <tr>
     <td class="leftmenu">
-      Current at namespace <a href="{% url namespace %}">root</a>{% for n in namespace_parent_list %}::<a href="{% url namespace sid=n.id %}">{{ n.name }}</a>{% endfor %}
+      Current at namespace <a href="{% url namespace %}">root</a>{% if namespace %}{% for p in namespace.parent_list %}::<a href="{% url namespace pk=p.id %}">{{ p.name }}</a>{% endfor %}{% endif %}
     </td>
     <td class="rightmenu">
       {% if problem.is_submittable %}<a href="{% url submit pid=problem.id %}">Submit<a>{% endif %}
