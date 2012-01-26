@@ -102,6 +102,7 @@ class Problem(models.Model):
   output_description = models.TextField()
   sample_input = models.TextField()
   sample_output = models.TextField()
+  test_data = models.ManyToManyField('TestData', blank=True)
   is_submittable = models.BooleanField(default=True)
   is_test_uploadable = models.BooleanField(default=False)
 
@@ -200,8 +201,9 @@ class Submission(models.Model):
 class TestData(models.Model):
   """ under construction
   """
+  submit_user = models.ForeignKey(User, null=True, default=None, editable=False)
   usable_problem = models.ForeignKey('Problem', null=True)
-  # input = models.TextField()
-  # output = models.TextField()
+  input = models.TextField()
+  output = models.TextField()
 
 
