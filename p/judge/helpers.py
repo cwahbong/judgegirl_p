@@ -52,16 +52,8 @@ def get_namespace(user, sid):
     raise Http404
 
 def permitted_problem_list(user, problem_list):
-  result = []
-  for problem in problem_list:
-    if problem_permitted(user, problem):
-      result.append(problem)
-  return result
+  return filter(lambda p: problem_permitted(user, p), problem_list)
 
 def visible_namespace_list(user, namespace_list):
-  result=[]
-  for namespace in namespace_list:
-    if namespace_visible(user, namespace):
-      result.append(namespace)
-  return result
+  return filter(lambda n: namespace_permitted(user, n), namespace_list)
 
