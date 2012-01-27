@@ -61,10 +61,17 @@ class Namespace(models.Model):
     ordering = ['name']
 
   def clean(self, *args, **kwargs):
-    if self.parent==self:
-      raise ValidationError('Parent cannot be self.')
-    if self.parent==None and Namespace.objects.filter(parent=None).filter(name=self.name):
-      raise ValidationError('The name of the Namespace with the same Parent already exists.')
+    # check circular parent
+    p = self.parent
+    while p:
+      if p.id and self.id and p==self:
+        raise ValidationError('Circular parent.')
+      p = p.parent
+    s = Namespace.objects.filter(parent=None)
+    # chech uniqueness since database treat each NULL as different value
+    # but we define each NULL be same here.
+    if not self.parent and s.filter(name=self.name) and s.get(name=self.name)!=self:
+      raise ValidationError('The name of the Namespace with the same Parent already exists.'+ str(s.get(name=self.name)))
     super(Namespace, self).clean(*args, **kwargs)
 
   def parent_list(self):
