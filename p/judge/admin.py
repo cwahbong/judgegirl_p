@@ -38,11 +38,16 @@ class NamespaceAdmin(admin.ModelAdmin):
   ]
 
 
+class TestDataInline(admin.TabularInline):
+  model = TestData
+  extra = 0
+  verbose_name_plural = 'Test data'
+  
+
 class ProblemAdmin(admin.ModelAdmin):
-  list_display = ['title', 'namespace', 'time_limit', 'memory_limit', 'output_limit', 'is_submittable', 'is_test_uploadable']
+  list_display = ['title', 'namespace', 'deadline', 'time_limit', 'memory_limit', 'output_limit', 'is_submittable', 'is_test_uploadable']
   list_filter = ['is_submittable', 'is_test_uploadable']
-  # raw_id_fields = ['namespace']
-  filter_horizontal = ['test_data']
+  inlines = [TestDataInline]
   fieldsets = [
     (None, {
       'fields': (
@@ -51,7 +56,8 @@ class ProblemAdmin(admin.ModelAdmin):
     }),
     ('Constraints', {
       'fields': (
-        ('time_limit', 'output_limit', 'memory_limit'),
+        'deadline',
+        ('time_limit', 'output_limit', 'memory_limit')
       )
     }),
     ('Descriptions', {
@@ -66,10 +72,7 @@ class ProblemAdmin(admin.ModelAdmin):
       ),
       'classes': ['monospace']
     }),
-    ('Test data', {
-      'fields': ('test_data',)
-    }),
-    ('Input/Output', {
+    ('Input/Output file', {
       'fields': (('input_file', 'output_file'), ),
       'classes': ['collapse']
     }),
@@ -130,5 +133,5 @@ admin.site.register(Namespace, NamespaceAdmin)
 admin.site.register(Problem, ProblemAdmin)
 admin.site.register(Status, StatusAdmin)
 admin.site.register(Submission, SubmissionAdmin)
-admin.site.register(TestData)
+#admin.site.register(TestData)
 

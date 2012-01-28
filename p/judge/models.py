@@ -68,7 +68,7 @@ class Namespace(models.Model):
         raise ValidationError('Circular parent.')
       p = p.parent
     s = Namespace.objects.filter(parent=None)
-    # chech uniqueness since database treat each NULL as different value
+    # check uniqueness since database treat each NULL as different value
     # but we define each NULL be same here.
     if not self.parent and s.filter(name=self.name) and s.get(name=self.name)!=self:
       raise ValidationError('The name of the Namespace with the same Parent already exists.'+ str(s.get(name=self.name)))
@@ -101,6 +101,7 @@ class Problem(models.Model):
   time_limit = models.IntegerField()          # Unit: second
   memory_limit = models.IntegerField()        # Unit: MB
   output_limit = models.IntegerField()        # Unit: MB
+  deadline = models.DateTimeField(blank=True, null=True)
   input_file = models.CharField(max_length=256, blank=True, null=True, default=None)    # leave blank to use stdin
   output_file = models.CharField(max_length=256, blank=True, null=True, default=None)   # leave blank to use stdout
   title = models.CharField(max_length=256)
@@ -109,7 +110,6 @@ class Problem(models.Model):
   output_description = models.TextField()
   sample_input = models.TextField()
   sample_output = models.TextField()
-  test_data = models.ManyToManyField('TestData', blank=True)
   is_submittable = models.BooleanField(default=True)
   is_test_uploadable = models.BooleanField(default=False)
 
@@ -206,11 +206,16 @@ class Submission(models.Model):
 
 
 class TestData(models.Model):
-  """ under construction
+  """ Represents a test data of a problem.  It is added by
+      the admin.
+
+      TODO let the user be able to upload his/her test data
+      and 'p' will judge it when it is free.
   """
-  submit_user = models.ForeignKey(User, null=True, default=None, editable=False)
   usable_problem = models.ForeignKey('Problem', null=True)
   input = models.TextField()
   output = models.TextField()
 
+  def __unicode__(self):
+    return 'Problem: ' + unicode(self.usable_problem) + ' Id: ' + unicode(self.id)
 
