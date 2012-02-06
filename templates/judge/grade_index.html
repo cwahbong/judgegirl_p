@@ -1,0 +1,11 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+<h1>Grade</h1>
+<ul>
+{% for group in group_list %}
+  <li><a href="{% url grade group.id %}">{{ group }}</a>
+{% endfor %}
+</ul>
+{% endblock %}
+

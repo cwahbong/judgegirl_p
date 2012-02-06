@@ -8,6 +8,7 @@
     <td><a href="{% url status %}">Status</a></td>
     <td><a href="{% url namespace %}">Problem</a></td>
     <td><a href="{% url link %}">Link</a></td>
+    <td><a href="{% url grade %}">Grade</a></td>
     {% if user.is_staff %}<td><a href="{% url admin:index %}">Admin</a></td>{% endif %}
     {% if user.is_authenticated %}<td><a href="{% url logout %}">Logout</a></td>{% endif %}
   </tr>

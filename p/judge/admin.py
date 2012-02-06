@@ -1,6 +1,6 @@
 from django.contrib import admin
-from p.judge.models import Announcement, Namespace, Link, Problem, Status, Submission, TestData
 
+from p.judge.models import *
 
 
 class AnnouncementAdmin(admin.ModelAdmin):
@@ -45,8 +45,8 @@ class TestDataInline(admin.TabularInline):
   
 
 class ProblemAdmin(admin.ModelAdmin):
-  list_display = ['title', 'namespace', 'deadline', 'time_limit', 'memory_limit', 'output_limit', 'is_submittable', 'is_test_uploadable']
-  list_filter = ['is_submittable', 'is_test_uploadable']
+  list_display = ['title', 'namespace', 'deadline', 'cooldown',  'time_limit', 'memory_limit', 'output_limit', 'submittable', 'test_uploadable']
+  list_filter = ['submittable', 'test_uploadable']
   inlines = [TestDataInline]
   fieldsets = [
     (None, {
@@ -57,7 +57,8 @@ class ProblemAdmin(admin.ModelAdmin):
     ('Constraints', {
       'fields': (
         'deadline',
-        ('time_limit', 'output_limit', 'memory_limit')
+        ('time_limit', 'output_limit', 'memory_limit'),
+        ('cooldown')
       )
     }),
     ('Descriptions', {
@@ -78,7 +79,7 @@ class ProblemAdmin(admin.ModelAdmin):
     }),
     ('Extra', {
       'fields': (
-        ('is_submittable', 'is_test_uploadable'),
+        ('submittable', 'test_uploadable'),
       ),
       'classes': ['collapse']
     })
@@ -87,6 +88,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
 class StatusAdmin(admin.ModelAdmin):
   list_display = ['name', 'description', 'start_time', 'end_time']
+  list_filter = ['status_type']
   filter_vertical = ['users', 'groups', 'problems', 'namespaces']
   fieldsets = [
     (None, {
@@ -128,6 +130,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Announcement, AnnouncementAdmin)
+admin.site.register(GradePolicy)
 admin.site.register(Link, LinkAdmin)
 admin.site.register(Namespace, NamespaceAdmin)
 admin.site.register(Problem, ProblemAdmin)

@@ -20,7 +20,16 @@ class Announcement(models.Model):
     super(Announcement, self).clean(*args, **kwargs)
 
   def __unicode__(self):
-    return self.title + ' (' + unicode(self.announce_time) + ')'
+    return self.title
+
+
+class GradePolicy(models.Model):
+  """
+  """
+  group = models.ForeignKey(Group)
+  weight = models.IntegerField()
+  namespace = models.ManyToManyField('Namespace', blank=True, null=True)
+  problem = models.ManyToManyField('Problem', blank=True, null=True)
 
 
 class Link(models.Model):
@@ -51,9 +60,9 @@ class Namespace(models.Model):
   parent = models.ForeignKey('self', blank=True, null=True, default='', on_delete=models.CASCADE)
   name = models.CharField(
     max_length=256,
-    validators=[
-      RegexValidator(regex='^\w+$', message='Enter a valid value, it should only contain alnum and underscore.'),
-    ]
+    #validators=[
+    #  RegexValidator(regex='^\w+$', message='Enter a valid value, it should only contain alnum and underscore.'),
+    #]
   )
 
   class Meta:
@@ -101,6 +110,7 @@ class Problem(models.Model):
   time_limit = models.IntegerField()          # Unit: second
   memory_limit = models.IntegerField()        # Unit: MB
   output_limit = models.IntegerField()        # Unit: MB
+  cooldown = models.IntegerField(blank=True, null=True, default=None)            # Unit: second
   deadline = models.DateTimeField(blank=True, null=True)
   input_file = models.CharField(max_length=256, blank=True, null=True, default=None)    # leave blank to use stdin
   output_file = models.CharField(max_length=256, blank=True, null=True, default=None)   # leave blank to use stdout
@@ -110,8 +120,8 @@ class Problem(models.Model):
   output_description = models.TextField()
   sample_input = models.TextField()
   sample_output = models.TextField()
-  is_submittable = models.BooleanField(default=True)
-  is_test_uploadable = models.BooleanField(default=False)
+  submittable = models.BooleanField(default=True)
+  test_uploadable = models.BooleanField(default=False)
 
   def __unicode__(self):
     if self.namespace:
@@ -144,7 +154,7 @@ class Status(models.Model):
     verbose_name_plural = 'Statuses'
 
   def __unicode__(self):
-    return self.description
+    return self.name
 
 
 class Submission(models.Model):
@@ -206,11 +216,10 @@ class Submission(models.Model):
 
 
 class TestData(models.Model):
-  """ Represents a test data of a problem.  It is added by
-      the admin.
+  """ Represents a test data of a problem.  It is added by the admin.
 
-      TODO let the user be able to upload his/her test data
-      and 'p' will judge it when it is free.
+      TODO let the user be able to upload his/her test data and 'p'
+      will judge it when it is free.
   """
   usable_problem = models.ForeignKey('Problem', null=True)
   input = models.TextField()
