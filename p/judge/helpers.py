@@ -30,7 +30,7 @@ def namespace_visible(user, namespace):
   return False
 
 def problem_permitted(user, problem):
-  if user_time_filter(user, problem.status_set.filter(status_type='PERMIT')) or namespace_permitted(user, problem.namespace):
+  if user_time_filter(user, problem.status_set.filter(status_type='PERMIT')) or namespace_permitted(user, problem.parent):
     return True
   else:
     return False

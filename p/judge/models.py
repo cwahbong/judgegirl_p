@@ -1,8 +1,30 @@
-from django.db import models, IntegrityError
+from django.db import models
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from datetime import datetime
+
+
+class AbstractNestedEntry(models.Model):
+  parent = models.ForeignKey('Namespace', blank=True, null=True, default='', on_delete=models.CASCADE)
+  name = models.CharField(max_length=255)
+  weight = models.IntegerField(default=1)
+
+  class Meta:
+    abstract = True
+ 
+  def parent_list(self):
+    p = self.parent
+    result = []
+    while p:
+      result.append(p)
+      p = p.parent
+    result.reverse()
+    return result
+
+  def place_list(self):
+    raise NotImplementedError
+
 
 class Announcement(models.Model):
   """ Represents an announcement.  The last modify time will be
@@ -23,15 +45,6 @@ class Announcement(models.Model):
     return self.title
 
 
-class GradePolicy(models.Model):
-  """
-  """
-  group = models.ForeignKey(Group)
-  weight = models.IntegerField()
-  namespace = models.ManyToManyField('Namespace', blank=True, null=True)
-  problem = models.ManyToManyField('Problem', blank=True, null=True)
-
-
 class Link(models.Model):
   """ Represents the hyperlink.
 
@@ -49,7 +62,7 @@ class Link(models.Model):
     return self.name
 
 
-class Namespace(models.Model):
+class Namespace(AbstractNestedEntry):
   """ Represents an namespace. The namespace with different parent
       namespace can have same name.
 
@@ -57,13 +70,6 @@ class Namespace(models.Model):
       in order to visit its children (namespace of problem).  It this
       situation you can only see the visible children of the namespace N.
   """
-  parent = models.ForeignKey('self', blank=True, null=True, default='', on_delete=models.CASCADE)
-  name = models.CharField(
-    max_length=256,
-    #validators=[
-    #  RegexValidator(regex='^\w+$', message='Enter a valid value, it should only contain alnum and underscore.'),
-    #]
-  )
 
   class Meta:
     unique_together = ('parent', 'name')
@@ -80,17 +86,11 @@ class Namespace(models.Model):
     # check uniqueness since database treat each NULL as different value
     # but we define each NULL be same here.
     if not self.parent and s.filter(name=self.name) and s.get(name=self.name)!=self:
-      raise ValidationError('The name of the Namespace with the same Parent already exists.'+ str(s.get(name=self.name)))
+      raise ValidationError('The name of the Namespace with the same Parent already exists.')
     super(Namespace, self).clean(*args, **kwargs)
 
-  def parent_list(self):
-    p = self
-    result = []
-    while p:
-      result.append(p)
-      p = p.parent
-    result.reverse()
-    return result
+  def place_list(self):
+    return self.parent_list() + [self]
 
   def __unicode__(self):
     if self.parent and self.parent.name!='':
@@ -99,14 +99,13 @@ class Namespace(models.Model):
       return self.name
 
 
-class Problem(models.Model):
+class Problem(AbstractNestedEntry):
   """ Represents the problem.  The problem can be at exactly one
       namespace ('None' means the root namespace).
 
       We suggest you put some problems in the same namespace, then you
       can change the permission of them together.
   """
-  namespace = models.ForeignKey('Namespace', blank=True, null=True, on_delete=models.PROTECT)
   time_limit = models.IntegerField()          # Unit: second
   memory_limit = models.IntegerField()        # Unit: MB
   output_limit = models.IntegerField()        # Unit: MB
@@ -114,7 +113,6 @@ class Problem(models.Model):
   deadline = models.DateTimeField(blank=True, null=True)
   input_file = models.CharField(max_length=256, blank=True, null=True, default=None)    # leave blank to use stdin
   output_file = models.CharField(max_length=256, blank=True, null=True, default=None)   # leave blank to use stdout
-  title = models.CharField(max_length=256)
   main_description = models.TextField()
   input_description = models.TextField()
   output_description = models.TextField()
@@ -123,11 +121,14 @@ class Problem(models.Model):
   submittable = models.BooleanField(default=True)
   test_uploadable = models.BooleanField(default=False)
 
+  def place_list(self):
+    return self.parent_list()
+
   def __unicode__(self):
-    if self.namespace:
-      return unicode(self.namespace) + '::' + self.title
+    if self.parent:
+      return unicode(self.parent) + '::' + self.name
     else:
-      return '::' + self.title
+      return '::' + self.name
 
 
 class Status(models.Model):

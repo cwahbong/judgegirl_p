@@ -21,6 +21,7 @@ class LinkAdmin(admin.ModelAdmin):
 
 class SubNamespaceInline(admin.TabularInline):
   model = Namespace
+  extra = 0
   verbose_name = 'Subnamespace'
   verbose_name_plural = 'Subnamespaces'
 
@@ -32,7 +33,7 @@ class NamespaceAdmin(admin.ModelAdmin):
     ('Self', {
       'fields': (
         'parent',
-        'name'
+        ('name', 'weight')
       )
     })
   ]
@@ -45,13 +46,14 @@ class TestDataInline(admin.TabularInline):
   
 
 class ProblemAdmin(admin.ModelAdmin):
-  list_display = ['title', 'namespace', 'deadline', 'cooldown',  'time_limit', 'memory_limit', 'output_limit', 'submittable', 'test_uploadable']
+  list_display = ['name', 'parent', 'weight', 'deadline', 'cooldown',  'time_limit', 'memory_limit', 'output_limit', 'submittable', 'test_uploadable']
   list_filter = ['submittable', 'test_uploadable']
   inlines = [TestDataInline]
   fieldsets = [
     (None, {
       'fields': (
-        ('namespace', 'title'),
+        'parent',
+        ('name', 'weight')
       )
     }),
     ('Constraints', {
@@ -130,7 +132,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Announcement, AnnouncementAdmin)
-admin.site.register(GradePolicy)
+#admin.site.register(GradePolicy)
 admin.site.register(Link, LinkAdmin)
 admin.site.register(Namespace, NamespaceAdmin)
 admin.site.register(Problem, ProblemAdmin)

@@ -4,7 +4,7 @@
 <h1>Submit</h1>
 <form action="{% url submit %}" method="post">{% csrf_token %}
   <fieldset><legend>Problem information</legend>
-    <div>Problem: {{ problem.title }}</div>
+    <div>Problem: {{ problem.name }}</div>
     <div>Time limit: {{ problem.time_limit }} second</div>
     <div>Memory limit: {{ problem.memory_limit }} MB</div>
     <div>Output limit: {{ problem.output_limit }} MB</div>

@@ -31,14 +31,14 @@ class GradeIndexView(TemplateView):
 
 
 """ Will be moved into helpers.py """
-def namespace_nest_list(namespace):
-  result = [namespace]
-  child = []
-  for subnamespace in namespace.namespace_set.all():
-    child.extend(namespace_nest_list(subnamespace))
-  child.extend(namespace.problem_set.all())
-  if child:
-    result.append(child)
+def namespace_nest_list(namespaces):
+  result = []
+  for namespace in namespaces:
+    child = namespace_nest_list(namespace.namespace_set.all())
+    child.extend(namespace.problem_set.all())
+    result.append(namespace)
+    if child:
+      result.append(child)
   return result
 
 
@@ -48,11 +48,8 @@ class GradeView(TemplateView):
   def get_context_data(self, *args, **kwargs):
     context = super(GradeView, self).get_context_data(*args, **kwargs)
     context['group'] = get_object_or_404(Group, id=context['params']['pk'])
-    gd = GradePolicy.objects.filter(group=self.request.user.groups.all())
-    context['namespace_problem'] = [item
-      for g in gd
-        for item in namespace_nest_list(g.namespace.get())
-    ]
+    #gd = GradePolicy.objects.filter(group=self.request.user.groups.all())
+    #context['namespace_problem'] = namespace_nest_list([g.namespace.get() for g in gd])
     """ todo fill grade """
     return context
 
@@ -78,7 +75,7 @@ class NamespaceIndexView(BaseNamespaceView):
   def get_context_data(self, *args, **kwargs):
     context = super(NamespaceIndexView, self).get_context_data(*args, **kwargs)
     context['namespace_list'] = visible_namespace_list(self.request.user, Namespace.objects.filter(parent=None))
-    context['problem_list'] = permitted_problem_list(self.request.user, Problem.objects.filter(namespace=None))
+    context['problem_list'] = permitted_problem_list(self.request.user, Problem.objects.filter(parent=None))
     return context
 
 
@@ -86,9 +83,9 @@ class NamespaceView(BaseNamespaceView):
 
   def get_context_data(self, *args, **kwargs):
     context = super(NamespaceView, self).get_context_data(*args, **kwargs)
-    context['namespace'] = get_namespace(self.request.user, context['params']['pk'])
-    context['namespace_list'] = visible_namespace_list(self.request.user, context['namespace'].namespace_set.all())
-    context['problem_list'] = permitted_problem_list(self.request.user, context['namespace'].problem_set.all())
+    context['object'] = get_namespace(self.request.user, context['params']['pk'])
+    context['namespace_list'] = visible_namespace_list(self.request.user, context['object'].namespace_set.all())
+    context['problem_list'] = permitted_problem_list(self.request.user, context['object'].problem_set.all())
     return context
 
 
@@ -97,9 +94,8 @@ class ProblemView(DetailView):
 
   def get_context_data(self, *args, **kwargs):
     context = super(ProblemView, self).get_context_data(*args, **kwargs)
-    if not problem_permitted(self.request.user, context['problem']):
+    if not problem_permitted(self.request.user, context['object']):
       raise Http404
-    context['namespace'] = context['problem'].namespace
     return context 
 
   @method_decorator(login_required)

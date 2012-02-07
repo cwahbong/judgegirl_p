@@ -18,7 +18,7 @@
   <li>Problems
   <ul>
   {% for problem in problem_list %}
-    <li><a href="{% url problem pk=problem.id %}">{{ problem.title }}</a>
+    <li><a href="{% url problem pk=problem.id %}">{{ problem.name }}</a>
   {%endfor %}
   </ul>
 {% endif %}
