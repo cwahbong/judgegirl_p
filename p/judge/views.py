@@ -3,16 +3,31 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, TemplateView
+from django.views.decorators.http import condition, require_http_methods
 
 from p.judge.forms import *
 from p.judge.helpers import *
 from p.judge.models import *
 
 
+""" TODO need to move """
+def last_modified_announcement(request):
+  return Announcement.objects.latest("announce_time").announce_time
+
+
 class AnnouncementView(ListView):
+  """ The view that gets all of the announcements and passes it to the
+      template 'judge/announcement_list.html'.
+
+      This view only accepts GET and HEAD method.  It also requires
+      login.  It will check the last modified time before passing the
+      data to template.
+  """
   model = Announcement
 
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
+  @method_decorator(condition(last_modified_func=last_modified_announcement))
   def dispatch(self, *args, **kwargs):
     return super(AnnouncementView, self).dispatch(*args, **kwargs)
 
@@ -25,6 +40,7 @@ class GradeIndexView(TemplateView):
     context['group_list'] = self.request.user.groups.all()
     return context
 
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
   def dispatch(self, *args, **kwargs):
     return super(GradeIndexView, self).dispatch(*args, **kwargs)
@@ -53,24 +69,47 @@ class GradeView(TemplateView):
     """ todo fill grade """
     return context
 
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
   def dispatch(self, *args, **kwargs):
     return super(GradeView, self).dispatch(*args, **kwargs)
 
 
 class LinkView(ListView):
+  """ The view that gets all of the links and passes it to the
+      template 'judge/link_list.html'.
+
+      This view only accepts GET and HEAD method.  It does not require
+      login.
+      
+      TODO: Check the last modified time before passing the data to
+      template.
+  """
   model = Link
+
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
+  def dispatch(self, *args, **kwargs):
+    return super(LinkView, self).dispatch(*args, **kwargs)
 
 
 class BaseNamespaceView(TemplateView):
+  """ We need this base because we need to process the root namespace
+      as special case.
+
+      The view only accepts GET and HEAD method.  It requires login.
+  """
   template_name = 'judge/namespace.html'
 
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
   def dispatch(self, *args, **kwargs):
     return super(BaseNamespaceView, self).dispatch(*args, **kwargs)
 
 
 class NamespaceIndexView(BaseNamespaceView):
+  """ The view to pass the data of the root namespace to template
+      (decided in the class BaseNamespaceView).
+  """
 
   def get_context_data(self, *args, **kwargs):
     context = super(NamespaceIndexView, self).get_context_data(*args, **kwargs)
@@ -80,6 +119,9 @@ class NamespaceIndexView(BaseNamespaceView):
 
 
 class NamespaceView(BaseNamespaceView):
+  """ The view to pass the data of the non-root namespace to template
+      (decided in the class BaseNamespaceView).
+  """
 
   def get_context_data(self, *args, **kwargs):
     context = super(NamespaceView, self).get_context_data(*args, **kwargs)
@@ -90,6 +132,12 @@ class NamespaceView(BaseNamespaceView):
 
 
 class ProblemView(DetailView):
+  """ The view to pass the data of the problem to template
+      'judge/problem_detail.html'.
+
+      TODO: Check the last modified time before passing the data to
+      template.
+  """
   model = Problem
 
   def get_context_data(self, *args, **kwargs):
@@ -98,6 +146,7 @@ class ProblemView(DetailView):
       raise Http404
     return context 
 
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
   def dispatch(self, *args, **kwargs):
     return super(ProblemView, self).dispatch(*args, **kwargs)
@@ -108,11 +157,12 @@ class StatusView(ListView):
   def get_queryset(self):
     return user_time_filter(self.request.user, Status.objects)
 
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
   def dispatch(self, *args, **kwargs):
     return super(StatusView, self).dispatch(*args, **kwargs)
 
-
+@require_http_methods(["GET", "HEAD", "POST"])
 @login_required
 def submit(request, pid=None):
   if request.method=='POST' and pid is None:
@@ -136,6 +186,7 @@ def submit(request, pid=None):
     raise Http404
 
 
+@require_http_methods(["GET", "HEAD", "POST"])
 @login_required
 def upload_test(request, pid=None):
   if request.method=='POST' and pid is None:
