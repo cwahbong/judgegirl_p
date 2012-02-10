@@ -3,16 +3,11 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, TemplateView
-from django.views.decorators.http import condition, require_http_methods
+from django.views.decorators.http import require_http_methods
 
 from p.judge.forms import *
 from p.judge.helpers import *
 from p.judge.models import *
-
-
-""" TODO need to move """
-def last_modified_announcement(request):
-  return Announcement.objects.latest("announce_time").announce_time
 
 
 class AnnouncementView(ListView):
@@ -20,14 +15,12 @@ class AnnouncementView(ListView):
       template 'judge/announcement_list.html'.
 
       This view only accepts GET and HEAD method.  It also requires
-      login.  It will check the last modified time before passing the
-      data to template.
+      login.
   """
   model = Announcement
 
   @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
-  @method_decorator(condition(last_modified_func=last_modified_announcement))
   def dispatch(self, *args, **kwargs):
     return super(AnnouncementView, self).dispatch(*args, **kwargs)
 
@@ -81,9 +74,6 @@ class LinkView(ListView):
 
       This view only accepts GET and HEAD method.  It does not require
       login.
-      
-      TODO: Check the last modified time before passing the data to
-      template.
   """
   model = Link
 
@@ -134,9 +124,6 @@ class NamespaceView(BaseNamespaceView):
 class ProblemView(DetailView):
   """ The view to pass the data of the problem to template
       'judge/problem_detail.html'.
-
-      TODO: Check the last modified time before passing the data to
-      template.
   """
   model = Problem
 
