@@ -9,5 +9,25 @@
   <div class="announce_time">Announced at {{ announcement.announce_time}}</div>
 </div>
 {% endfor %}
+<table class="pagination">
+  <tr>
+    <td class="prev">
+      {% if page_obj.has_previous %}
+      <a href={% url announcement page_obj.previous_page_number %}>prev</a>
+      {% else %}
+      prev
+      {% endif %}
+    </td>
+    <td>
+      Page {{ page_obj.number }} of {{ paginator.num_pages }}
+    </td>
+    <td class="next">
+      {% if page_obj.has_next %}
+      <a href={% url announcement page_obj.next_page_number %}>next</a>
+      {% else %}
+      next
+      {% endif %}
+    </td>
+  </table>
 {% endblock %}
 

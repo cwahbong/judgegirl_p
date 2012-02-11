@@ -56,3 +56,21 @@ table.sample
   text-align: right
 }
 
+.pagination
+{
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%;
+  text-align: center
+}
+
+.pagination .next
+{
+  text-align: right
+}
+
+.pagination .prev
+{
+  text-align: left
+}
+

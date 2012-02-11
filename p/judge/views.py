@@ -18,6 +18,7 @@ class AnnouncementView(ListView):
       login.
   """
   model = Announcement
+  paginate_by = 5 
 
   @method_decorator(require_http_methods(["GET", "HEAD"]))
   @method_decorator(login_required)
@@ -30,7 +31,7 @@ class GradeIndexView(TemplateView):
 
   def get_context_data(self, *args, **kwargs):
     context = super(GradeIndexView, self).get_context_data(*args, **kwargs)
-    context['group_list'] = self.request.user.groups.all()
+    #context['grade_list'] = self.request.user.groups
     return context
 
   @method_decorator(require_http_methods(["GET", "HEAD"]))
@@ -56,7 +57,7 @@ class GradeView(TemplateView):
 
   def get_context_data(self, *args, **kwargs):
     context = super(GradeView, self).get_context_data(*args, **kwargs)
-    context['group'] = get_object_or_404(Group, id=context['params']['pk'])
+    #context['grade'] = get_object_or_404(Group, id=context['params']['pk'])
     #gd = GradePolicy.objects.filter(group=self.request.user.groups.all())
     #context['namespace_problem'] = namespace_nest_list([g.namespace.get() for g in gd])
     """ todo fill grade """
@@ -140,7 +141,11 @@ class ProblemView(DetailView):
 
 
 class StatusView(ListView):
+  """ The view to pass the data of the status of the user to
+      template 'judge/status_list.html'.
 
+      It will only get the status that is activated on the user.
+  """
   def get_queryset(self):
     return user_time_filter(self.request.user, Status.objects)
 

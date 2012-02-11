@@ -6,6 +6,9 @@ from datetime import datetime
 
 
 class AbstractNestedEntry(models.Model):
+  """ This is the base of Namespace and Problem.  It have all of the 
+      common properties of them.
+  """
   parent = models.ForeignKey('Namespace', blank=True, null=True, default='', on_delete=models.CASCADE)
   name = models.CharField(max_length=255)
   weight = models.IntegerField(default=1)
@@ -144,7 +147,8 @@ class Status(models.Model):
     choices=(
       ('TAG', 'tag'),
       ('PERMIT', 'permit'),
-      ('SILENCE', 'silence')
+      ('SILENCE', 'silence'),
+      ('GRADED', 'graded')
     )
   )
   start_time = models.DateTimeField(blank=True, null=True, default=None)
