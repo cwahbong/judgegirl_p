@@ -31,7 +31,7 @@ class GradeIndexView(TemplateView):
 
   def get_context_data(self, *args, **kwargs):
     context = super(GradeIndexView, self).get_context_data(*args, **kwargs)
-    #context['grade_list'] = self.request.user.groups
+    context['graded_list'] = user_time_filter(self.request.user, Status.objects.filter(status_type='GRADED'))
     return context
 
   @method_decorator(require_http_methods(["GET", "HEAD"]))
@@ -51,16 +51,50 @@ def namespace_nest_list(namespaces):
       result.append(child)
   return result
 
+def get_grade_detail(user, entry_list, abs_weight=100, root=True):
+  def child_score_sum(child):
+    return sum(map(lambda e: e['score'], filter(lambda c: isinstance(c, dict), child)))
+  def _helper(user, entry_list, abs_weight=100, root=True):
+    result = []
+    s = sum(map(lambda e: e.weight, entry_list))
+    for entry in entry_list:
+      result.append({
+        'name': entry.name,
+        'ratio': float(abs_weight * entry.weight)/s,
+        'score': 0.0
+      })
+      if isinstance(entry, Namespace):
+        child = _helper(
+          user,
+          list(entry.namespace_set.all())+list(entry.problem_set.all()),
+          abs_weight=result[-1]['ratio'],
+          root=False
+        )
+        result[-1]['score'] = child_score_sum(child)
+        if child:
+          result.append(child)
+      elif isinstance(entry, Problem):
+        result[-1]['score'] = 1 # TODO query!   (...)*result[-1]['ratio']/full_score
+    if root:
+      result = [{'name': 'all', 'ratio': abs_weight, 'score': child_score_sum(result)}, result]
+    return result
+  def _mapper(item):
+    if isinstance(item, list):
+      return map(_mapper, item)
+    else:
+      return '{1:04.1f} - {0} - ({2:04.1f}%)'.format(item['name'], item['score'], item['ratio'])
+  return map(_mapper, _helper(user, entry_list, abs_weight))
+   
 
 class GradeView(TemplateView):
   template_name = 'judge/grade.html'
 
   def get_context_data(self, *args, **kwargs):
     context = super(GradeView, self).get_context_data(*args, **kwargs)
-    #context['grade'] = get_object_or_404(Group, id=context['params']['pk'])
-    #gd = GradePolicy.objects.filter(group=self.request.user.groups.all())
-    #context['namespace_problem'] = namespace_nest_list([g.namespace.get() for g in gd])
-    """ todo fill grade """
+    context['status_grade'] = get_object_or_404(Status, id=context['params']['pk'])
+    gd = Status.objects.filter(status_type='GRADED', groups=self.request.user.groups.all())
+    context['namespace_problem'] = get_grade_detail(self.request.user, [n for g in gd for n in g.namespaces.all()])
+    """ TODO fill grade by query the submissions """
     return context
 
   @method_decorator(require_http_methods(["GET", "HEAD"]))

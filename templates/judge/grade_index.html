@@ -3,8 +3,8 @@
 {% block content %}
 <h1>Grade</h1>
 <ul>
-{% for group in group_list %}
-  <li><a href="{% url grade group.id %}">{{ group }}</a>
+{% for graded in graded_list %}
+  <li><a href="{% url grade graded.id %}">{{ graded }}</a>
 {% endfor %}
 </ul>
 {% endblock %}
