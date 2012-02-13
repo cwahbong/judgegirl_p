@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic import DetailView, ListView, TemplateView, View
 from django.views.decorators.http import require_http_methods
 
 from p.judge.forms import *
@@ -94,7 +94,6 @@ class GradeView(TemplateView):
     context['status_grade'] = get_object_or_404(Status, id=context['params']['pk'])
     gd = Status.objects.filter(status_type='GRADED', groups=self.request.user.groups.all())
     context['namespace_problem'] = get_grade_detail(self.request.user, [n for g in gd for n in g.namespaces.all()])
-    """ TODO fill grade by query the submissions """
     return context
 
   @method_decorator(require_http_methods(["GET", "HEAD"]))
@@ -188,10 +187,9 @@ class StatusView(ListView):
   def dispatch(self, *args, **kwargs):
     return super(StatusView, self).dispatch(*args, **kwargs)
 
-@require_http_methods(["GET", "HEAD", "POST"])
-@login_required
-def submit(request, pid=None):
-  if request.method=='POST' and pid is None:
+
+class SubmitView(View):
+  def post(self, request, *args, **kwargs):
     if request.POST['submit_method']=='textarea':
       submission = Submission(
         problem=get_problem(request.user, request.POST['pid']),
@@ -199,17 +197,29 @@ def submit(request, pid=None):
         code=request.POST['code']
       )
     elif request.POST['submit_method']=='file':
-      pass
+      pass # TODO support upload source by file
     submission.full_clean()
     submission.save()
-    return redirect('problem', pid=request.POST['pid'])
-  elif request.method=='GET' and pid:
-    dic = {
-      'problem': get_problem(request.user, pid)
-    }
-    return render(request, 'submit.html', dictionary=dic)
-  else:
-    raise Http404
+    return redirect('problem', pk=request.POST['pid'])
+
+  @method_decorator(require_http_methods(["POST"]))
+  @method_decorator(login_required)
+  def dispatch(self, *args, **kwargs):
+    return super(SubmitView, self).dispatch(*args, **kwargs)
+
+
+class SubmitFormView(TemplateView):
+  template_name='submit.html'
+
+  def get_context_data(self, *args, **kwargs):
+    context = super(SubmitFormView, self).get_context_data(*args, **kwargs)
+    context['problem'] = get_problem(self.request.user, context['params']['pid'])
+    return context
+  
+  @method_decorator(require_http_methods(["GET", "HEAD"]))
+  @method_decorator(login_required)
+  def dispatch(self, *args, **kwargs):
+    return super(SubmitFormView, self).dispatch(*args, **kwargs)
 
 
 @require_http_methods(["GET", "HEAD", "POST"])
