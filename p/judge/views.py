@@ -11,11 +11,11 @@ from p.judge.models import *
 
 
 class AnnouncementView(ListView):
-  """ The view that gets all of the announcements and passes it to the
-      template 'judge/announcement_list.html'.
+  """
+  The view that gets all of the announcements and passes it to the
+  template 'judge/announcement_list.html'.
 
-      This view only accepts GET and HEAD method.  It also requires
-      login.
+  This view only accepts GET and HEAD method.  It also requires login.
   """
   model = Announcement
   paginate_by = 5 
@@ -103,11 +103,12 @@ class GradeView(TemplateView):
 
 
 class LinkView(ListView):
-  """ The view that gets all of the links and passes it to the
-      template 'judge/link_list.html'.
+  """
+  The view that gets all of the links and passes it to the template
+  'judge/link_list.html'.
 
-      This view only accepts GET and HEAD method.  It does not require
-      login.
+  This view only accepts GET and HEAD method.  It does not require
+  login.
   """
   model = Link
 
@@ -117,10 +118,11 @@ class LinkView(ListView):
 
 
 class BaseNamespaceView(TemplateView):
-  """ We need this base because we need to process the root namespace
-      as special case.
+  """
+  We need this base because we need to process the root namespace as
+  special case.
 
-      The view only accepts GET and HEAD method.  It requires login.
+  The view only accepts GET and HEAD method.  It requires login.
   """
   template_name = 'judge/namespace.html'
 
@@ -131,8 +133,9 @@ class BaseNamespaceView(TemplateView):
 
 
 class NamespaceIndexView(BaseNamespaceView):
-  """ The view to pass the data of the root namespace to template
-      (decided in the class BaseNamespaceView).
+  """
+  The view to pass the data of the root namespace to template (decided
+  in the class BaseNamespaceView).
   """
 
   def get_context_data(self, *args, **kwargs):
@@ -143,8 +146,9 @@ class NamespaceIndexView(BaseNamespaceView):
 
 
 class NamespaceView(BaseNamespaceView):
-  """ The view to pass the data of the non-root namespace to template
-      (decided in the class BaseNamespaceView).
+  """
+  The view to pass the data of the non-root namespace to template
+  (decided in the class BaseNamespaceView).
   """
 
   def get_context_data(self, *args, **kwargs):
@@ -156,8 +160,9 @@ class NamespaceView(BaseNamespaceView):
 
 
 class ProblemView(DetailView):
-  """ The view to pass the data of the problem to template
-      'judge/problem_detail.html'.
+  """
+  The view to pass the data of the problem to template
+  'judge/problem_detail.html'.
   """
   model = Problem
 
@@ -174,10 +179,11 @@ class ProblemView(DetailView):
 
 
 class StatusView(ListView):
-  """ The view to pass the data of the status of the user to
-      template 'judge/status_list.html'.
+  """
+  The view to pass the data of the status of the user to template
+  'judge/status_list.html'.
 
-      It will only get the status that is activated on the user.
+  It will only get the status that is activated on the user.
   """
   def get_queryset(self):
     return user_time_filter(self.request.user, Status.objects)

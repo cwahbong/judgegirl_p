@@ -6,8 +6,9 @@ from datetime import datetime
 
 
 class AbstractNestedEntry(models.Model):
-  """ This is the base of Namespace and Problem.  It have all of the 
-      common properties of them.
+  """
+  This is the base of Namespace and Problem.  It have all of the 
+  common properties of them.
   """
   parent = models.ForeignKey('Namespace', blank=True, null=True, default='', on_delete=models.CASCADE)
   name = models.CharField(max_length=255)
@@ -30,8 +31,9 @@ class AbstractNestedEntry(models.Model):
 
 
 class Announcement(models.Model):
-  """ Represents an announcement.  The last modify time will be
-      filled automatically.
+  """
+  Represents an announcement.  The last modify time will be filled
+  automatically.
   """
   title = models.CharField(max_length=256)
   content = models.TextField()
@@ -49,10 +51,11 @@ class Announcement(models.Model):
 
 
 class Link(models.Model):
-  """ Represents the hyperlink.
+  """
+  Represents the hyperlink.
 
-      Note that it will only check the format of the URL.  It will not
-      check if the link is valid.
+  Note that it will only check the format of the URL.  It will not
+  check if the link is valid.
   """
   name = models.CharField(max_length=256)
   url = models.URLField()
@@ -66,12 +69,13 @@ class Link(models.Model):
 
 
 class Namespace(AbstractNestedEntry):
-  """ Represents an namespace. The namespace with different parent
-      namespace can have same name.
+  """
+  Represents an namespace. The namespace with different parent
+  namespace can have same name.
 
-      The namespace N will be visible when any of its children is visible
-      in order to visit its children (namespace of problem).  It this
-      situation you can only see the visible children of the namespace N.
+  The namespace N will be visible when any of its children is visible
+  in order to visit its children (namespace of problem).  It this
+  situation you can only see the visible children of the namespace N.
   """
 
   class Meta:
@@ -103,11 +107,12 @@ class Namespace(AbstractNestedEntry):
 
 
 class Problem(AbstractNestedEntry):
-  """ Represents the problem.  The problem can be at exactly one
-      namespace ('None' means the root namespace).
+  """
+  Represents the problem.  The problem can be at exactly one namespace
+  ('None' means the root namespace).
 
-      We suggest you put some problems in the same namespace, then you
-      can change the permission of them together.
+  We suggest you put some problems in the same namespace, then you can
+  change the permission of them together.
   """
   time_limit = models.IntegerField()          # Unit: second
   memory_limit = models.IntegerField()        # Unit: MB
@@ -221,10 +226,11 @@ class Submission(models.Model):
 
 
 class TestData(models.Model):
-  """ Represents a test data of a problem.  It is added by the admin.
+  """
+  Represents a test data of a problem.  It is added by the admin.
 
-      TODO let the user be able to upload his/her test data and 'p'
-      will judge it when it is free.
+  TODO let the user be able to upload his/her test data and 'p' will
+  judge it when it is free.
   """
   usable_problem = models.ForeignKey('Problem', null=True)
   input = models.TextField()
