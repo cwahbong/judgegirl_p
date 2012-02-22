@@ -19,14 +19,13 @@ class LinkAdmin(admin.ModelAdmin):
   ]
 
 
-class SubNamespaceInline(admin.TabularInline):
-  model = Namespace
-  extra = 0
-  verbose_name = 'Subnamespace'
-  verbose_name_plural = 'Subnamespaces'
-
-
 class NamespaceAdmin(admin.ModelAdmin):
+  class SubNamespaceInline(admin.TabularInline):
+    model = Namespace
+    extra = 0
+    verbose_name = 'Subnamespace'
+    verbose_name_plural = 'Subnamespaces'
+  
   search_fields = ['name']
   inlines = [SubNamespaceInline]
   fieldsets = [
@@ -39,13 +38,14 @@ class NamespaceAdmin(admin.ModelAdmin):
   ]
 
 
-class TestDataInline(admin.TabularInline):
-  model = TestData
-  extra = 0
-  verbose_name_plural = 'Test data'
   
 
 class ProblemAdmin(admin.ModelAdmin):
+  class TestDataInline(admin.TabularInline):
+    model = TestData
+    extra = 0
+    verbose_name_plural = 'Test data'
+
   list_display = ['name', 'parent', 'weight', 'deadline', 'cooldown',  'time_limit', 'memory_limit', 'output_limit', 'submittable', 'test_uploadable']
   list_filter = ['submittable', 'test_uploadable']
   inlines = [TestDataInline]
