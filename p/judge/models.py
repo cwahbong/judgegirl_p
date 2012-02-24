@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from datetime import datetime
 
+import string
 
 class AbstractNestedEntry(models.Model):
   """
@@ -28,6 +29,12 @@ class AbstractNestedEntry(models.Model):
 
   def place_list(self):
     raise NotImplementedError
+
+  def full_name(self):
+    return string.join(map(unicode, self.parent_list()), '::') + '::' + self.name
+
+  def __unicode__(self):
+    return self.full_name()
 
 
 class Announcement(models.Model):
@@ -99,12 +106,6 @@ class Namespace(AbstractNestedEntry):
   def place_list(self):
     return self.parent_list() + [self]
 
-  def __unicode__(self):
-    if self.parent and self.parent.name!='':
-      return unicode(self.parent) + '::' + self.name
-    else:
-      return self.name
-
 
 class Problem(AbstractNestedEntry):
   """
@@ -131,12 +132,6 @@ class Problem(AbstractNestedEntry):
 
   def place_list(self):
     return self.parent_list()
-
-  def __unicode__(self):
-    if self.parent:
-      return unicode(self.parent) + '::' + self.name
-    else:
-      return '::' + self.name
 
 
 class Status(models.Model):
