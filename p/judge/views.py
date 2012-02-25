@@ -40,17 +40,6 @@ class GradeIndexView(TemplateView):
     return super(GradeIndexView, self).dispatch(*args, **kwargs)
 
 
-""" Will be moved into helpers.py """
-def namespace_nest_list(namespaces):
-  result = []
-  for namespace in namespaces:
-    child = namespace_nest_list(namespace.namespace_set.all())
-    child.extend(namespace.problem_set.all())
-    result.append(namespace)
-    if child:
-      result.append(child)
-  return result
-
 def get_grade_detail(user, entry_list, abs_weight=100, root=True):
   def child_score_sum(child):
     return sum(map(lambda e: e['score'], filter(lambda c: isinstance(c, dict), child)))
@@ -220,6 +209,8 @@ class SubmitFormView(TemplateView):
   def get_context_data(self, *args, **kwargs):
     context = super(SubmitFormView, self).get_context_data(*args, **kwargs)
     context['problem'] = get_problem(self.request.user, context['params']['pid'])
+    if not context['problem'].submittable:
+      raise Http404
     return context
   
   @method_decorator(require_http_methods(["GET", "HEAD"]))
