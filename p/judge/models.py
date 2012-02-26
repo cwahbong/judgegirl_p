@@ -14,14 +14,10 @@ class Announcement(models.Model):
   """
   title = models.CharField(max_length=256)
   content = models.TextField()
-  announce_time = models.DateTimeField(editable=False)
+  announce_time = models.DateTimeField(auto_now=True)
 
   class Meta:
     ordering = ['-announce_time']
-
-  def clean(self, *args, **kwargs):
-    self.announce_time = datetime.now()
-    super(Announcement, self).clean(*args, **kwargs)
 
   def __unicode__(self):
     return self.title
@@ -58,7 +54,7 @@ class Namespace(AbstractNestedEntry):
   class Meta:
     unique_together = ('parent', 'name')
 
-  def clean(self, *args, **kwargs):
+  def clean(self):
     # check circular parent
     p = self.parent
     while p:
@@ -70,7 +66,7 @@ class Namespace(AbstractNestedEntry):
     # but we define each NULL be same here.
     if not self.parent and s.filter(name=self.name) and s.get(name=self.name)!=self:
       raise ValidationError('The name of the Namespace with the same Parent already exists.')
-    super(Namespace, self).clean(*args, **kwargs)
+    super(Namespace, self).clean()
 
   @models.permalink
   def get_absolute_url(self):
@@ -100,7 +96,6 @@ class Problem(AbstractNestedEntry):
   output_description = models.TextField()
   sample_input = models.TextField()
   sample_output = models.TextField()
-
   submittable = models.BooleanField(default=True)
   test_uploadable = models.BooleanField(default=False)
 
@@ -156,7 +151,7 @@ class Submission(models.Model):
     default=0
   )
   code = models.TextField(blank=True)
-  submit_time = models.DateTimeField(editable=False)
+  submit_time = models.DateTimeField(auto_now_add=True)
   request_time = models.DateTimeField(editable=False)
   status = models.CharField(
     max_length=2,
@@ -189,10 +184,10 @@ class Submission(models.Model):
   )
   result_message = models.TextField(editable=False)
 
-  def clean(self, *args, **kwargs):
-    self.submit_time = datetime.now()
-    self.request_time = self.submit_time
-    super(Submission, self).clean(*args, **kwargs)
+  def clean(self):
+    # TODO need to fix the time.
+    self.request_time = datetime.now()
+    super(Submission, self).clean()
 
   def __unicode__(self):
     return 'Problem: ' + unicode(self.problem) + " User: " + unicode(self.user) + " Time: " + unicode(self.submit_time)
@@ -212,7 +207,8 @@ class SystemTestData(AbstractTestData):
 
 class UserUploadedTestData(AbstractTestData):
   """
-  Represents a test data of a problem uploaded by users.
+  Represents a test data of a problem uploaded by users, and can be
+  downloaded by other users.
 
   'p' will judge it when it is free.
   """
