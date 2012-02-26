@@ -10,7 +10,7 @@
   <li>Namespaces
   <ul>
   {% for namespace in namespace_list %}
-    <li><a href="{% url namespace pk=namespace.id %}">{{ namespace.name }}</a>
+  <li><a href="{{ namespace.get_absolute_url }}">{{ namespace.name }}</a>
   {% endfor %}
   </ul>
 {% endif %}
@@ -18,7 +18,7 @@
   <li>Problems
   <ul>
   {% for problem in problem_list %}
-    <li><a href="{% url problem pk=problem.id %}">{{ problem.name }}</a>
+  <li><a href="{{ problem.get_absolute_url }}">{{ problem.name }}</a>
   {%endfor %}
   </ul>
 {% endif %}

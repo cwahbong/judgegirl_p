@@ -4,37 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from datetime import datetime
 
-import string
-
-class AbstractNestedEntry(models.Model):
-  """
-  This is the base of Namespace and Problem.  It have all of the 
-  common properties of them.
-  """
-  parent = models.ForeignKey('Namespace', blank=True, null=True, default='', on_delete=models.CASCADE)
-  name = models.CharField(max_length=255, blank=True, null=True, default='')
-  weight = models.IntegerField(default=1)
-
-  class Meta:
-    abstract = True
- 
-  def parent_list(self):
-    p = self.parent
-    result = []
-    while p:
-      result.append(p)
-      p = p.parent
-    result.reverse()
-    return result
-
-  def place_list(self):
-    raise NotImplementedError
-
-  def full_name(self):
-    return string.join(map(unicode, self.parent_list()), '::') + '::' + self.name
-
-  def __unicode__(self):
-    return self.full_name()
+from p.judge.model_base import *
 
 
 class Announcement(models.Model):
@@ -87,7 +57,6 @@ class Namespace(AbstractNestedEntry):
 
   class Meta:
     unique_together = ('parent', 'name')
-    ordering = ['name']
 
   def clean(self, *args, **kwargs):
     # check circular parent
@@ -102,6 +71,10 @@ class Namespace(AbstractNestedEntry):
     if not self.parent and s.filter(name=self.name) and s.get(name=self.name)!=self:
       raise ValidationError('The name of the Namespace with the same Parent already exists.')
     super(Namespace, self).clean(*args, **kwargs)
+
+  @models.permalink
+  def get_absolute_url(self):
+    return ('namespace', [unicode(self.id)])
 
   def place_list(self):
     return self.parent_list() + [self]
@@ -128,12 +101,12 @@ class Problem(AbstractNestedEntry):
   sample_input = models.TextField()
   sample_output = models.TextField()
 
-  test_data = models.FileField(upload_to='private/admin/test_data', blank=True, null=True, default=None)
-  downloadable_resource = models.FileField(upload_to='public/admin/resource', blank=True, null=True, default=None)
-  hidden_resource = models.FileField(upload_to='private/admin/resource', blank=True, null=True, default=None)
-
   submittable = models.BooleanField(default=True)
   test_uploadable = models.BooleanField(default=False)
+
+  @models.permalink
+  def get_absolute_url(self):
+    return ('problem', [unicode(self.id)])
 
   def place_list(self):
     return self.parent_list()
@@ -225,18 +198,30 @@ class Submission(models.Model):
     return 'Problem: ' + unicode(self.problem) + " User: " + unicode(self.user) + " Time: " + unicode(self.submit_time)
 
 
-class TestData(models.Model):
-  # TODO check if the test data is valid.
+class SystemTestData(AbstractTestData):
   """
-  Represents a test data of a problem, uploaded by users.
+  Represents a test data uploaded by admin, which can not be downloaded
+  by users.
+  """
+  def __test_data_namer__(self, filename):
+    return 'private/problems/{}/testdata/{}'.format(
+      self.problem.id,
+      filename
+    )
 
-  The user will be able to upload his/her test data and 'p' will judge
-  it when it is free.
+
+class UserUploadedTestData(AbstractTestData):
   """
-  problem = models.ForeignKey('Problem', null=True, default=None)
+  Represents a test data of a problem uploaded by users.
+
+  'p' will judge it when it is free.
+  """
   user = models.ForeignKey(User, null=True, default=None)
-  test_data = models.FileField(upload_to='public/user/test_data', null=True, default=None)
 
-  def __unicode__(self):
-    return 'Problem: ' + unicode(self.problem) + ' Id: ' + unicode(self.id)
+  def __test_data_namer__(self, filename):
+    return 'public/users/{}/problems/{}/testdata/{}'.format(
+      self.user.id,
+      self.problem.id,
+      filename
+    )
 
