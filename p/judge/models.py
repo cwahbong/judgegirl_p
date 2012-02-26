@@ -12,7 +12,7 @@ class AbstractNestedEntry(models.Model):
   common properties of them.
   """
   parent = models.ForeignKey('Namespace', blank=True, null=True, default='', on_delete=models.CASCADE)
-  name = models.CharField(max_length=255)
+  name = models.CharField(max_length=255, blank=True, null=True, default='')
   weight = models.IntegerField(default=1)
 
   class Meta:
@@ -127,6 +127,11 @@ class Problem(AbstractNestedEntry):
   output_description = models.TextField()
   sample_input = models.TextField()
   sample_output = models.TextField()
+
+  test_data = models.FileField(upload_to='private/admin/test_data', blank=True, null=True, default=None)
+  downloadable_resource = models.FileField(upload_to='public/admin/resource', blank=True, null=True, default=None)
+  hidden_resource = models.FileField(upload_to='private/admin/resource', blank=True, null=True, default=None)
+
   submittable = models.BooleanField(default=True)
   test_uploadable = models.BooleanField(default=False)
 
@@ -221,16 +226,17 @@ class Submission(models.Model):
 
 
 class TestData(models.Model):
+  # TODO check if the test data is valid.
   """
-  Represents a test data of a problem.  It is added by the admin.
+  Represents a test data of a problem, uploaded by users.
 
-  TODO let the user be able to upload his/her test data and 'p' will
-  judge it when it is free.
+  The user will be able to upload his/her test data and 'p' will judge
+  it when it is free.
   """
-  usable_problem = models.ForeignKey('Problem', null=True)
-  input = models.TextField()
-  output = models.TextField()
+  problem = models.ForeignKey('Problem', null=True, default=None)
+  user = models.ForeignKey(User, null=True, default=None)
+  test_data = models.FileField(upload_to='public/user/test_data', null=True, default=None)
 
   def __unicode__(self):
-    return 'Problem: ' + unicode(self.usable_problem) + ' Id: ' + unicode(self.id)
+    return 'Problem: ' + unicode(self.problem) + ' Id: ' + unicode(self.id)
 

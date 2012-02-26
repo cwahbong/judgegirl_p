@@ -41,14 +41,9 @@ class NamespaceAdmin(admin.ModelAdmin):
   
 
 class ProblemAdmin(admin.ModelAdmin):
-  class TestDataInline(admin.TabularInline):
-    model = TestData
-    extra = 0
-    verbose_name_plural = 'Test data'
 
   list_display = ['name', 'parent', 'weight', 'deadline', 'cooldown',  'time_limit', 'memory_limit', 'output_limit', 'submittable', 'test_uploadable']
   list_filter = ['submittable', 'test_uploadable']
-  inlines = [TestDataInline]
   fieldsets = [
     (None, {
       'fields': (
@@ -75,7 +70,10 @@ class ProblemAdmin(admin.ModelAdmin):
       ),
       'classes': ['monospace']
     }),
-    ('Input/Output file', {
+    ('Test data', {
+      'fields': ('test_data', ),
+    }),
+    ('IO file name', {
       'fields': (('input_file', 'output_file'), ),
       'classes': ['collapse']
     }),
