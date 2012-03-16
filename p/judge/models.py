@@ -184,7 +184,9 @@ class Submission(models.Model):
     super(Submission, self).clean()
 
   def __unicode__(self):
-    return 'Problem: ' + unicode(self.problem) + " User: " + unicode(self.user) + " Time: " + unicode(self.submit_time)
+    return 'Problem: {}, User: {}, Time: {}.'.format(
+      self.problem, self.user, self.submit_time
+    )
 
 
 class SystemTestData(AbstractTestData):
@@ -194,8 +196,7 @@ class SystemTestData(AbstractTestData):
   """
   def __test_data_namer__(self, filename):
     return 'private/testdata/{}/{}'.format(
-      self.problem.id,
-      filename
+      self.problem.id, filename
     )
 
 
@@ -210,8 +211,6 @@ class UserUploadedTestData(AbstractTestData):
 
   def __test_data_namer__(self, filename):
     return 'public/testdata/{}/{}/{}'.format(
-      self.problem.id,
-      self.user.id,
-      filename
+      self.problem.id, self.user.id, filename
     )
 
