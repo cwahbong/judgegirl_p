@@ -193,7 +193,7 @@ class SystemTestData(AbstractTestData):
   by users.
   """
   def __test_data_namer__(self, filename):
-    return 'private/problems/{}/testdata/{}'.format(
+    return 'private/testdata/{}/{}'.format(
       self.problem.id,
       filename
     )
@@ -209,9 +209,9 @@ class UserUploadedTestData(AbstractTestData):
   user = models.ForeignKey(User, null=True, default=None)
 
   def __test_data_namer__(self, filename):
-    return 'public/users/{}/problems/{}/testdata/{}'.format(
-      self.user.id,
+    return 'public/testdata/{}/{}/{}'.format(
       self.problem.id,
+      self.user.id,
       filename
     )
 
