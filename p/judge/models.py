@@ -72,9 +72,6 @@ class Namespace(AbstractNestedEntry):
   def get_absolute_url(self):
     return ('namespace', [unicode(self.id)])
 
-  def place_list(self):
-    return self.parent_list() + [self]
-
 
 class Problem(AbstractNestedEntry):
   """
@@ -102,9 +99,6 @@ class Problem(AbstractNestedEntry):
   @models.permalink
   def get_absolute_url(self):
     return ('problem', [unicode(self.id)])
-
-  def place_list(self):
-    return self.parent_list()
 
 
 class Status(models.Model):

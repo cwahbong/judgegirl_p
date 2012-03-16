@@ -29,9 +29,6 @@ class AbstractNestedEntry(models.Model):
     result.reverse()
     return result
 
-  def place_list(self):
-    raise NotImplementedError
-
   def full_name(self):
     return '{}::{}'.format(
       string.join(map(lambda p: p.name, self.parent_list()), '::'),
